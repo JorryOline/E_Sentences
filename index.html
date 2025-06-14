@@ -2,124 +2,131 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>每日句子</title>
+  <title>每日升华</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
     body {
-      width: 100vw;
-      height: 100vh;
+      margin: 0;
+      padding: 20px;
       font-family: 'Microsoft YaHei', Arial, sans-serif;
-      color: white;
-      background-color: rgba(0, 0, 0, 0.3);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      color: #ffffff;
+      height: calc(100vh - 40px);
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      background-color: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
     }
-    #header {
-      padding: 15px;
+    .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      flex-shrink: 0;
+      margin-bottom: 20px;
     }
-    #title {
-      font-size: 1.5rem;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      color: #ffffff;
+      text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
     }
     #close-btn {
       background: none;
       border: none;
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 2rem;
+      font-size: 24px;
       cursor: pointer;
-      padding: 0 10px;
-      transition: all 0.2s;
+      color: rgba(255, 255, 255, 0.7);
+      padding: 5px 10px;
     }
     #close-btn:hover {
-      color: white;
-      transform: scale(1.1);
+      color: #ffffff;
     }
     #sentences-container {
       flex: 1;
       display: flex;
       flex-direction: column;
-      justify-content: space-evenly;
-      padding: 0 10%;
-      gap: 2vh;
+      justify-content: center;
+      gap: 40px;
     }
     .sentence {
       flex: 1;
+      padding: 30px;
+      background-color: rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      font-size: 28px;
+      line-height: 1.6;
+      text-align: center;
+      border-left: 5px solid rgba(52, 152, 219, 0.7);
+      transition: transform 0.3s, box-shadow 0.3s;
+      color: #ffffff;
+      text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
       display: flex;
       align-items: center;
       justify-content: center;
-      text-align: center;
-      font-size: calc(2vw + 2vh);
-      line-height: 1.4;
-      padding: 20px;
-      background-color: rgba(255, 255, 255, 0.15);
-      border-radius: 15px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-      border-left: 6px solid rgba(52, 152, 219, 0.7);
-      transition: all 0.3s;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-      word-break: break-word;
-      overflow: hidden;
-      max-height: 30vh;
     }
     .sentence:hover {
-      background-color: rgba(255, 255, 255, 0.2);
       transform: translateY(-5px);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-    }
-    #controls {
-      padding: 15px;
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      flex-shrink: 0;
-    }
-    .btn {
-      padding: 12px 25px;
-      background-color: rgba(52, 152, 219, 0.7);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.3s;
-      backdrop-filter: blur(5px);
-      -webkit-backdrop-filter: blur(5px);
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-    }
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-    #reload-btn {
-      background-color: rgba(46, 204, 113, 0.7);
-    }
-    #select-file-btn {
-      background-color: rgba(155, 89, 182, 0.7);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      background-color: rgba(255, 255, 255, 0.2);
     }
     #error-message {
       color: #ff6b6b;
-      text-align: center;
-      padding: 10px;
-      font-size: 1.2rem;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
       display: none;
+      margin-bottom: 20px;
+      font-size: 18px;
+      text-align: center;
+      text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+    }
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .btn {
+      padding: 12px 24px;
+      background-color: rgba(52, 152, 219, 0.7);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.3s;
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+    }
+    .btn:hover {
+      background-color: rgba(41, 128, 185, 0.8);
+      transform: translateY(-2px);
+    }
+    .btn-reload {
+      background-color: rgba(46, 204, 113, 0.7);
+    }
+    .btn-reload:hover {
+      background-color: rgba(39, 174, 96, 0.8);
+    }
+    .btn-select {
+      background-color: rgba(155, 89, 182, 0.7);
+    }
+    .btn-select:hover {
+      background-color: rgba(142, 68, 173, 0.8);
+    }
+    #day-info {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
     }
   </style>
 </head>
 <body>
-  <div id="header">
-    <h1 id="title">今日升华</h1>
+  <div id="day-info"></div>
+  
+  <div class="header">
+    <h1>今日升华</h1>
     <button id="close-btn">×</button>
   </div>
   
@@ -127,20 +134,25 @@
   
   <div id="sentences-container"></div>
   
-  <div id="controls">
-    <button id="reload-btn" class="btn">刷新句子</button>
-    <button id="select-file-btn" class="btn">选择句子文件</button>
+  <div class="controls">
+    <button id="reload-btn" class="btn btn-reload">刷新句子</button>
+    <button id="select-file-btn" class="btn btn-select">选择句子文件</button>
   </div>
 
   <script>
     const { ipcRenderer } = require('electron')
+    
+    // 显示当前日期
+    const now = new Date()
+    document.getElementById('day-info').textContent = 
+      `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日`
     
     ipcRenderer.on('update-sentences', (event, sentences) => {
       document.getElementById('error-message').style.display = 'none'
       const container = document.getElementById('sentences-container')
       container.innerHTML = ''
       
-      sentences.forEach(sentence => {
+      sentences.forEach((sentence, index) => {
         const div = document.createElement('div')
         div.className = 'sentence'
         div.textContent = sentence

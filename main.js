@@ -4,6 +4,7 @@ const fs = require('fs')
 
 let mainWindow
 const windowStateFile = 'window-state.json'
+const sentenceStateFile = 'sentence-state.json'
 
 function getSentencesFilePath() {
   if (!app.isPackaged) {
@@ -18,7 +19,7 @@ function getDefaultWindowPosition() {
     x: width - Math.floor(width * 0.5),
     y: 0,
     width: Math.floor(width * 0.5),
-    height: height  // 改为全高
+    height: Math.floor(height * 0.7)
   }
 }
 
@@ -51,17 +52,49 @@ function tryLoadWindowPosition() {
   return getDefaultWindowPosition()
 }
 
-function selectRandomSentences(sentences, count, seed) {
-  const shuffled = [...sentences]
-  let currentSeed = seed
-  
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    currentSeed = (currentSeed * 9301 + 49297) % 233280
-    const j = Math.floor(currentSeed / 233280 * (i + 1))
-    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+function getCurrentDayIndex() {
+  const now = new Date()
+  const start = new Date(now.getFullYear(), 0, 0)
+  const diff = now - start
+  const oneDay = 1000 * 60 * 60 * 24
+  return Math.floor(diff / oneDay)
+}
+
+function getNextSentences(allSentences) {
+  try {
+    const data = fs.readFileSync(sentenceStateFile, 'utf8')
+    const { lastDay, lastIndex } = JSON.parse(data)
+    const currentDay = getCurrentDayIndex()
+    
+    if (lastDay === currentDay) {
+      // 同一天，返回相同的句子
+      const index1 = lastIndex % allSentences.length
+      const index2 = (lastIndex + 1) % allSentences.length
+      return [allSentences[index1], allSentences[index2]]
+    } else {
+      // 新的一天，返回下一组句子
+      const newIndex = (lastIndex + 2) % allSentences.length
+      fs.writeFileSync(sentenceStateFile, JSON.stringify({
+        lastDay: currentDay,
+        lastIndex: newIndex
+      }))
+      const index1 = newIndex % allSentences.length
+      const index2 = (newIndex + 1) % allSentences.length
+      return [allSentences[index1], allSentences[index2]]
+    }
+  } catch (err) {
+    // 首次运行或文件损坏，从第一句开始
+    const currentDay = getCurrentDayIndex()
+    fs.writeFileSync(sentenceStateFile, JSON.stringify({
+      lastDay: currentDay,
+      lastIndex: 0
+    }))
+    return allSentences.length >= 2 
+      ? [allSentences[0], allSentences[1]]
+      : allSentences.length === 1
+        ? [allSentences[0], allSentences[0]]
+        : ["请添加句子到文件", "请添加句子到文件"]
   }
-  
-  return shuffled.slice(0, count)
 }
 
 function loadAndSendSentences(filePath, window) {
@@ -73,15 +106,12 @@ function loadAndSendSentences(filePath, window) {
     }
     
     const allSentences = data.split('\n').filter(s => s.trim() !== '')
-    if (allSentences.length < 3) {
-      window.webContents.send('file-error', '句子文件中至少需要3个句子')
+    if (allSentences.length < 1) {
+      window.webContents.send('file-error', '句子文件中至少需要1个句子')
       return
     }
     
-    const today = new Date().toDateString()
-    const seed = today.split('').reduce((a, b) => a + b.charCodeAt(0), 0)
-    const selectedSentences = selectRandomSentences(allSentences, 3, seed)
-    
+    const selectedSentences = getNextSentences(allSentences)
     window.webContents.send('update-sentences', selectedSentences)
   })
 }
@@ -104,7 +134,8 @@ function createWindow() {
       nodeIntegration: true,
       contextIsolation: false
     },
-    backgroundColor: '#00000000'
+    backgroundColor: '#00000000',
+    icon: path.join(__dirname, 'build/icon/favicon.jpg')
   })
 
   mainWindow.setBackgroundColor('#00000000')
@@ -138,6 +169,8 @@ function createWindow() {
       try {
         const targetPath = getSentencesFilePath()
         fs.copyFileSync(result.filePaths[0], targetPath)
+        // 重置句子索引
+        fs.unlinkSync(sentenceStateFile)
         return targetPath
       } catch (err) {
         console.error('复制文件失败:', err)
